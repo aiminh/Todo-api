@@ -46,9 +46,7 @@ app.get(
 	'/todos/:id',
 	function(req, res){
 		
-		var todoId = parseInt(req.params.id, 10);
-
-
+		var todoId = parseInt(req.params.id, 10); //convert the string to Int
 		var matchedTodo = _.find(todos, {"id": todoId});
 
 
@@ -91,13 +89,24 @@ app.post('/todos',
 		todos.push(body);
 
 		//push to todo array
-
-
 		console.log('description: ' + req.body.description);
 		res.json(body);
 	}
 );
 
+app.delete('/todos/:id',
+	function(req, res){
+		var todoId = parseInt(req.params.id, 10); //convert the string to Int
+		var matchedTodo = _.find(todos, {"id": todoId});
+
+		if (matchedTodo){
+			todos = _.without( todos, matchedTodo );
+			res.json(matchedTodo);
+		}else{
+			return res.status(404).json({"error":"no todo found with that id"});
+		}
+	}
+);
 
 app.listen(
 	PORT, 
