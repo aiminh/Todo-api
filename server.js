@@ -1,24 +1,30 @@
 var express = require('express');
+var bodyParser = require('body-parser');
+
 var app = express();
 var PORT = process.env.PORT || 3000;
 
 var todos = [
-	{
-		id:1,
-		description:'task1',
-		complete:false
-	},
-	{
-		id:2,
-		description:'task2',
-		complete:false
-	},
-	{
-		id:3,
-		description:'task3',
-		complete:true
-	}
+	// {
+	// 	id:1,
+	// 	description:'task1',
+	// 	complete:true
+	// },
+	// {
+	// 	id:2,
+	// 	description:'task2',
+	// 	complete:false
+	// },
+	// {
+	// 	id:3,
+	// 	description:'task3',
+	// 	complete:true
+	// }
 ];
+
+var todoNextId = 1;
+
+app.use(bodyParser.json());
 
 app.get('/', 
 	function(req, res){
@@ -26,7 +32,7 @@ app.get('/',
 	}
 );
 
-//GET todos
+//GET todos,  specify a route /todos
 app.get('/todos',
 	function(req, res){
 		res.json(todos); //it will convert it to JSON and send back to whoever calls the api
@@ -62,7 +68,24 @@ app.get(
 	}
 );
 
+//POST /todos
+app.post('/todos',
+	function(req, res){
+		var body = req.body;
 
+		//add id field
+		body.id = todoNextId;
+		todoNextId++;
+
+		todos.push(body);
+
+		//push to todo array
+
+
+		console.log('description: ' + req.body.description);
+		res.json(body);
+	}
+);
 
 
 app.listen(
