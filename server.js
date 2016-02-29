@@ -33,6 +33,20 @@ app.get('/todos',
 		 	filteredTodos = _.where(todos, {completed: false} );
 		 }
 
+		 if( queryParams.hasOwnProperty('q') && queryParams.q.length > 0){
+
+		 	console.log(3333);
+
+
+		 	filteredTodos = _.filter(filteredTodos,  
+		 		function(obj){ 
+		 		 return obj.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;  
+
+		 		} 
+		 	);
+
+		 }
+
 		res.json(filteredTodos); //it will convert it to JSON and send back to whoever calls the api
 	}
 );
