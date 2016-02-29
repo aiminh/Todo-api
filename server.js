@@ -77,7 +77,7 @@ app.post('/todos',
 		var body = _.pick(req.body, 'description','completed');
 
 		if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
-			return res.status(404).send();
+			return res.status(400).send(); //400 means request is invalid
 		}
 
 		body.description = body.description.trim();
@@ -105,6 +105,46 @@ app.delete('/todos/:id',
 		}else{
 			return res.status(404).json({"error":"no todo found with that id"});
 		}
+	}
+);
+
+app.put('/todos/:id', 
+
+	function(req, res){
+		var todoId = parseInt(req.params.id, 10); //convert the string to Int
+		var matchedTodo = _.find(todos, {"id": todoId}); //passed by reference, so if matchedTodo changed, the corresponding element in array also changes
+		var body = _.pick(req.body, 'description','completed');
+		var validateAttributes = {};
+
+		if (!matchedTodo){
+			return res.status(404).send();
+		}
+
+		if(body.hasOwnProperty('completed') && _.isBoolean(body.completed) ){
+			validateAttributes.completed = body.completed;
+
+		}else if(body.hasOwnProperty('completed')) {
+			return res.status(400).send();
+		}
+
+		if(body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0  ){
+			validateAttributes.description = body.description;
+		}else if (body.hasOwnProperty('description')){
+			return res.status(400).send();
+		}
+
+		//HERE
+		// extend_.extend(destination, *sources) 
+		// Copy all of the properties in the source objects over to the destination object, and return the destination object. It's in-order, so the last source will override properties of the same name in previous arguments.
+
+		// _.extend({name: 'moe'}, {age: 50});
+		// => {name: 'moe', age: 50}
+
+		_.extend(matchedTodo, validateAttributes);
+
+		res.json(matchedTodo).send();
+
+
 	}
 );
 
