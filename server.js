@@ -2,28 +2,10 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 
-
 var app = express();
 var PORT = process.env.PORT || 3000;
 
-var todos = [
-	// {
-	// 	id:1,
-	// 	description:'task1',
-	// 	complete:true
-	// },
-	// {
-	// 	id:2,
-	// 	description:'task2',
-	// 	complete:false
-	// },
-	// {
-	// 	id:3,
-	// 	description:'task3',
-	// 	complete:true
-	// }
-];
-
+var todos = [];
 var todoNextId = 1;
 
 app.use(bodyParser.json());
@@ -37,9 +19,27 @@ app.get('/',
 //GET todos,  specify a route /todos
 app.get('/todos',
 	function(req, res){
-		res.json(todos); //it will convert it to JSON and send back to whoever calls the api
+		var queryParams = req.query;
+		var filteredTodos = todos;
+		console.log(queryParams);
+
+		 if(queryParams.hasOwnProperty('completed')  && queryParams.completed === "true"){
+		 	console.log(1111);
+
+		 	filteredTodos = _.where(todos, {completed: true} );
+		 }else if (queryParams.hasOwnProperty('completed')  && queryParams.completed === "false"){
+		 	console.log(22222);
+
+		 	filteredTodos = _.where(todos, {completed: false} );
+		 }
+
+		res.json(filteredTodos); //it will convert it to JSON and send back to whoever calls the api
 	}
 );
+
+
+
+
 
 //Get todos/:id
 app.get(
@@ -48,7 +48,6 @@ app.get(
 		
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
 		var matchedTodo = _.find(todos, {"id": todoId});
-
 
 		//iterate fo todos array, find the match
 		// todos.forEach(
@@ -64,8 +63,6 @@ app.get(
 		}else{
 			res.status(404).send();
 		}
-
-
 	}
 );
 
