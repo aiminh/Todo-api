@@ -1,6 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var db = require('./db.js');
+
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -81,24 +83,47 @@ app.get(
 app.post('/todos',
 	function(req, res){
 		//use _.pick() to pick only description and completed
-
 		var body = _.pick(req.body, 'description','completed');
 
+
 		if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
-			return res.status(400).send(); //400 means request is invalid
-		}
+		 	return res.status(400).send(); //400 means request is invalid
+		 }
 
 		body.description = body.description.trim();
+		//body.id = todoNextId;
+		//todoNextId++;   //sqlite auto increment id from 1 by default?
 
-		//add id field
-		body.id = todoNextId;
-		todoNextId++;
 
-		todos.push(body);
+		db.todo.create( body)
+		.then(
+			function(todo){
+				console.log(todo.toJSON());
+				res.json(todo.toJSON());
+			}
+		).catch(
+			function(e){
+				return res.status(400).json(e);
+			}
+		);
 
-		//push to todo array
-		console.log('description: ' + req.body.description);
-		res.json(body);
+
+		///////
+		// if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
+		// 	return res.status(400).send(); //400 means request is invalid
+		// }
+
+		// body.description = body.description.trim();
+
+		// //add id field
+		// body.id = todoNextId;
+		// todoNextId++;
+
+		// todos.push(body);
+
+		// //push to todo array
+		// console.log('description: ' + req.body.description);
+		// res.json(body);
 	}
 );
 
@@ -156,9 +181,13 @@ app.put('/todos/:id',
 	}
 );
 
-app.listen(
-	PORT, 
-	function(){
-		console.log('express listening on port ' + PORT);
-	} 
-);
+db.sequelize.sync().then(function(){
+	app.listen(
+		PORT, 
+		function(){
+			console.log('express listening on port ' + PORT);
+		} 
+	);
+});
+
+
