@@ -17,26 +17,23 @@ app.get('/',
 );
 
 //GET todos,  specify a route /todos
+//search1: ?completed=true
+//search2: ?q=abc, search descriptions that contains substring
 app.get('/todos',
 	function(req, res){
 		var queryParams = req.query;
 		var filteredTodos = todos;
 		console.log(queryParams);
 
+		//?completed=true or false
 		 if(queryParams.hasOwnProperty('completed')  && queryParams.completed === "true"){
-		 	console.log(1111);
-
 		 	filteredTodos = _.where(todos, {completed: true} );
 		 }else if (queryParams.hasOwnProperty('completed')  && queryParams.completed === "false"){
-		 	console.log(22222);
-
 		 	filteredTodos = _.where(todos, {completed: false} );
 		 }
 
+		 //?q=abc
 		 if( queryParams.hasOwnProperty('q') && queryParams.q.length > 0){
-
-		 	console.log(3333);
-
 
 		 	filteredTodos = _.filter(filteredTodos,  
 		 		function(obj){ 
