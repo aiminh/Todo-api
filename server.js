@@ -43,9 +43,7 @@ app.get('/todos',
 
 		 		} 
 		 	);
-
 		 }
-
 		res.json(filteredTodos); //it will convert it to JSON and send back to whoever calls the api
 	}
 );
@@ -58,24 +56,26 @@ app.get('/todos',
 app.get(
 	'/todos/:id',
 	function(req, res){
-		
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
-		var matchedTodo = _.find(todos, {"id": todoId});
 
-		//iterate fo todos array, find the match
-		// todos.forEach(
-		// 	function(todo){
-		// 		if (todo.id === todoId) {
-		// 			matchedTodo = todo;
-		// 		}
-		// 	}
-		// );
+		db.todo.findById(todoId).then( 
+			function(matchedTodo){
+				if(!!matchedTodo){
+					res.json(matchedTodo);
+				}else{
+					console.log('no todo found!');
+					res.status(404).send();
+				}
+			}, function(e){
+				res.status(500).send();
+		});
 
-		if (matchedTodo){
-			res.json(matchedTodo);
-		}else{
-			res.status(404).send();
-		}
+		// var matchedTodo = _.find(todos, {"id": todoId});
+		// if (matchedTodo){
+		// 	res.json(matchedTodo);
+		// }else{
+		// 	res.status(404).send();
+		// }
 	}
 );
 
