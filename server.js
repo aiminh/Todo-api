@@ -197,39 +197,69 @@ app.put('/todos/:id',
 
 	function(req, res){
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
-		var matchedTodo = _.find(todos, {"id": todoId}); //passed by reference, so if matchedTodo changed, the corresponding element in array also changes
 		var body = _.pick(req.body, 'description','completed');
-		var validateAttributes = {};
+		///
+		var attributes = {};
 
-		if (!matchedTodo){
-			return res.status(404).send();
+		if (body.hasOwnProperty('completed')){
+			attributes.completed = body.completed;
 		}
 
-		if(body.hasOwnProperty('completed') && _.isBoolean(body.completed) ){
-			validateAttributes.completed = body.completed;
-
-		}else if(body.hasOwnProperty('completed')) {
-			return res.status(400).send();
+		if(body.hasOwnProperty('description')){
+			attributes.description = body.description;
 		}
 
-		if(body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0  ){
-			validateAttributes.description = body.description;
-		}else if (body.hasOwnProperty('description')){
-			return res.status(400).send();
-		}
+		db.todo.findById(todoId)
+		.then(
+			function(todo){
+				if(todo){
+					todo.update(attributes)
+					.then(
+						function(todo){
+							res.json(todo.toJSON());
+						},
+						function(e){
+							res.status(400).json(e);
+						}
+					);
+				}else{
+					res.status(404).send();
+				}
+			},
+			function(){
+				res.status(500).send(); //500 means server error
+			}
+		)
 
-		//HERE
-		// extend_.extend(destination, *sources) 
-		// Copy all of the properties in the source objects over to the destination object, and return the destination object. It's in-order, so the last source will override properties of the same name in previous arguments.
+		// var matchedTodo = _.find(todos, {"id": todoId}); //passed by reference, so if matchedTodo changed, the corresponding element in array also changes
+		// var validateAttributes = {};
 
-		// _.extend({name: 'moe'}, {age: 50});
-		// => {name: 'moe', age: 50}
+		// if (!matchedTodo){
+		// 	return res.status(404).send();
+		// }
 
-		_.extend(matchedTodo, validateAttributes);
+		// if(body.hasOwnProperty('completed') && _.isBoolean(body.completed) ){
+		// 	validateAttributes.completed = body.completed;
 
-		res.json(matchedTodo).send();
+		// }else if(body.hasOwnProperty('completed')) {
+		// 	return res.status(400).send();
+		// }
 
+		// if(body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0  ){
+		// 	validateAttributes.description = body.description;
+		// }else if (body.hasOwnProperty('description')){
+		// 	return res.status(400).send();
+		// }
 
+		// //HERE
+		// // extend_.extend(destination, *sources) 
+		// // Copy all of the properties in the source objects over to the destination object, and return the destination object. It's in-order, so the last source will override properties of the same name in previous arguments.
+
+		// // _.extend({name: 'moe'}, {age: 50});
+		// // => {name: 'moe', age: 50}
+
+		// _.extend(matchedTodo, validateAttributes);
+		// res.json(matchedTodo).send();
 	}
 );
 
