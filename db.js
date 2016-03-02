@@ -20,6 +20,7 @@ if (env === 'production'){
 var db = {};
 
 db.todo = sequelize.import(__dirname + '/models/todo.js'); //import function pass 2 special hidden arguments to function in todo.js
+db.user = sequelize.import(__dirname + '/models/user.js');
 
 db.sequelize = sequelize; //instance
 db.Sequelize = Sequelize; //library
