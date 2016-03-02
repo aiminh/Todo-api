@@ -1,9 +1,9 @@
 var Sequelize = require('Sequelize');
-var env = process.env.NODE_ENV || 'development'; //if first one has no value, assign 'development'
+var env = process.env.NODE_ENV || 'development'; //if first one has no value(when running from local), assign 'development'
 var sequelize;
 
 if (env === 'production'){
-	sequelize = new Sequelize(process.env.DATABASE_URL, {dialect:'postgres'} ); 
+	sequelize = new Sequelize(process.env.DATABASE_URL, {'dialect':'postgres'} ); 
 }else{
 	sequelize = new Sequelize(undefined, undefined,undefined, {
 		'dialect':'sqlite',
