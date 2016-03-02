@@ -1,4 +1,4 @@
-var Sequelize = require('Sequelize');
+var Sequelize = require('sequelize');
 var env = process.env.NODE_ENV || 'development'; //if first one has no value(when running from local), assign 'development'
 var sequelize;
 
