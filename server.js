@@ -23,28 +23,61 @@ app.get('/',
 //search2: ?q=abc, search descriptions that contains substring
 app.get('/todos',
 	function(req, res){
-		var queryParams = req.query;
-		var filteredTodos = todos;
-		console.log(queryParams);
+		var query = req.query;
+		var where = {};
 
-		//?completed=true or false
-		 if(queryParams.hasOwnProperty('completed')  && queryParams.completed === "true"){
-		 	filteredTodos = _.where(todos, {completed: true} );
-		 }else if (queryParams.hasOwnProperty('completed')  && queryParams.completed === "false"){
-		 	filteredTodos = _.where(todos, {completed: false} );
-		 }
+		if (query.hasOwnProperty('completed') && query.completed === 'true'){
+			where.completed = true;
+		}else if(query.hasOwnProperty('completed') && query.completed === 'false') {
+			where.completed = false;
+		}
 
-		 //?q=abc
-		 if( queryParams.hasOwnProperty('q') && queryParams.q.length > 0){
+		if(query.hasOwnProperty('q') && query.q.length > 0 ){
+			where.description =  { $like: '%' + query.q + '%'};
+		}
 
-		 	filteredTodos = _.filter(filteredTodos,  
-		 		function(obj){ 
-		 		 return obj.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;  
+		db.todo.findAll(
+			{where:where}
+		).then(
+		function(matchedTodos){
+			if(!!matchedTodos){
+				res.json(matchedTodos);
+				matchedTodos.forEach(function(todo){
+					console.log(todo.toJSON());
+				});
+			}else{
+				console.log('no todo found!');
+				res.status(404).send();
+			}
+		}
+		).catch(
+			function(e){
+				res.status(500).send();
+			}
+		);
 
-		 		} 
-		 	);
-		 }
-		res.json(filteredTodos); //it will convert it to JSON and send back to whoever calls the api
+		// var queryParams = req.query;
+		// var filteredTodos = todos;
+		// console.log(queryParams);
+
+		// //?completed=true or false
+		//  if(queryParams.hasOwnProperty('completed')  && queryParams.completed === "true"){
+		//  	filteredTodos = _.where(todos, {completed: true} );
+		//  }else if (queryParams.hasOwnProperty('completed')  && queryParams.completed === "false"){
+		//  	filteredTodos = _.where(todos, {completed: false} );
+		//  }
+
+		//  //?q=abc
+		//  if( queryParams.hasOwnProperty('q') && queryParams.q.length > 0){
+
+		//  	filteredTodos = _.filter(filteredTodos,  
+		//  		function(obj){ 
+		//  		 return obj.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;  
+
+		//  		} 
+		//  	);
+		//  }
+		// res.json(filteredTodos); //it will convert it to JSON and send back to whoever calls the api
 	}
 );
 
@@ -93,7 +126,6 @@ app.post('/todos',
 		body.description = body.description.trim();
 		//body.id = todoNextId;
 		//todoNextId++;   //sqlite auto increment id from 1 by default?
-
 
 		db.todo.create( body)
 		.then(
@@ -190,4 +222,4 @@ db.sequelize.sync().then(function(){
 	);
 });
 
-
+//
