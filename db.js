@@ -1,9 +1,20 @@
 var Sequelize = require('Sequelize');
+var env = process.env.NODE_ENV || 'development'; //if first one has no value, assign 'development'
+var sequelize;
 
-var sequelize = new Sequelize(undefined, undefined,undefined, {
-	'dialect':'sqlite',
-	'storage': __dirname + '/data/dev-todos-api.sqlite'
-});
+if (env === 'production'){
+	sequelize = new Sequelize(process.env.DATABASE_URL, {dialect:'postgres'} ); 
+}else{
+	sequelize = new Sequelize(undefined, undefined,undefined, {
+		'dialect':'sqlite',
+		'storage': __dirname + '/data/dev-todos-api.sqlite'
+	});
+
+}
+// var sequelize = new Sequelize(undefined, undefined,undefined, {
+// 	'dialect':'sqlite',
+// 	'storage': __dirname + '/data/dev-todos-api.sqlite'
+// });
 
 
 var db = {};
