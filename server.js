@@ -273,7 +273,7 @@ app.post('/users',
 		then(
 			function(user){
 				//console.log(res.json(user.toJSON()));
-				res.json(user.toJSON());
+				res.json(user.toPublicJSON());
 			},
 			function(e){
 				res.status(400).json(e);
