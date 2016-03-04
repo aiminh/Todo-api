@@ -289,7 +289,12 @@ app.post('/users/login',
 
 		db.user.authenticate(body).then(
 			function(matchedUser){
-				res.json(matchedUser.toPublicJSON());
+				var token = matchedUser.generateToken('Authentication');
+				if(token){
+					res.header('Auth', token).json(matchedUser.toPublicJSON());
+				}else{
+					res.status(401).send(); //Unauthorized
+				}
 			},
 			function(){
 				res.status(401).send(); //Unauthorized
