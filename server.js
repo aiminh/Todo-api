@@ -26,7 +26,9 @@ app.get('/todos',
 	middleware.requireAuthentication,
 	function(req, res){
 		var query = req.query;
-		var where = {};
+		var where = {
+			userId : req.user.get('id')
+		};
 
 		if (query.hasOwnProperty('completed') && query.completed === 'true'){
 			where.completed = true;
@@ -93,8 +95,12 @@ app.get(
 	middleware.requireAuthentication,
 	function(req, res){
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
+		var where = {
+			id : todoId,
+			userId: req.user.get('id')
+		}
 
-		db.todo.findById(todoId).then( 
+		db.todo.findOne({where:where}).then( 
 			function(matchedTodo){
 				if(!!matchedTodo){
 					res.json(matchedTodo);
@@ -121,7 +127,6 @@ app.post('/todos',
 	function(req, res){
 		//use _.pick() to pick only description and completed
 		var body = _.pick(req.body, 'description','completed');
-
 
 		if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
 		 	return res.status(400).send(); //400 means request is invalid
@@ -171,7 +176,10 @@ app.delete('/todos/:id',
 	middleware.requireAuthentication,
 	function(req, res){
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
-		var where = {id:todoId};
+		var where = {
+			id:todoId,
+			userId:req.user.get('id') 
+		};
 
 		db.todo.destroy({where:where})
 		.then(
@@ -218,7 +226,9 @@ app.put('/todos/:id',
 			attributes.description = body.description;
 		}
 
-		db.todo.findById(todoId)
+		var where = {id : todoId, userId : req.user.get('id')};
+
+		db.todo.findOne({where:where})
 		.then(
 			function(todo){
 				if(todo){
