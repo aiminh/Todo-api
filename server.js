@@ -135,7 +135,11 @@ app.post('/todos',
 		.then(
 			function(todo){
 				console.log(todo.toJSON());
-				res.json(todo.toJSON());
+				req.user.addTodo(todo).then(function(){
+					return todo.reload();
+				}).then(function(todo){
+					res.json(todo.toJSON());
+				});
 			}
 		).catch(
 			function(e){
@@ -145,7 +149,7 @@ app.post('/todos',
 
 
 		///////
-		// if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
+		//  if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0 ){
 		// 	return res.status(400).send(); //400 means request is invalid
 		// }
 
@@ -295,7 +299,7 @@ app.post('/users/login',
 
 		db.user.authenticate(body).then(
 			function(matchedUser){
-				var token = matchedUser.generateToken('Authentication');
+				var token = matchedUser.generateToken('Authentication'); //type is Authentication
 				if(token){
 					res.header('Auth', token).json(matchedUser.toPublicJSON());
 				}else{
