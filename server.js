@@ -2,6 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
+var middleware = require('./middleware.js')(db);
+
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -21,6 +23,7 @@ app.get('/',
 //search1: ?completed=true
 //search2: ?q=abc, search descriptions that contains substring
 app.get('/todos',
+	middleware.requireAuthentication,
 	function(req, res){
 		var query = req.query;
 		var where = {};
@@ -87,6 +90,7 @@ app.get('/todos',
 //Get todos/:id
 app.get(
 	'/todos/:id',
+	middleware.requireAuthentication,
 	function(req, res){
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
 
@@ -113,6 +117,7 @@ app.get(
 
 //POST /todos
 app.post('/todos',
+	middleware.requireAuthentication,
 	function(req, res){
 		//use _.pick() to pick only description and completed
 		var body = _.pick(req.body, 'description','completed');
@@ -159,6 +164,7 @@ app.post('/todos',
 );
 
 app.delete('/todos/:id',
+	middleware.requireAuthentication,
 	function(req, res){
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
 		var where = {id:todoId};
@@ -193,7 +199,7 @@ app.delete('/todos/:id',
 
 
 app.put('/todos/:id', 
-
+	middleware.requireAuthentication,
 	function(req, res){
 		var todoId = parseInt(req.params.id, 10); //convert the string to Int
 		var body = _.pick(req.body, 'description','completed');
